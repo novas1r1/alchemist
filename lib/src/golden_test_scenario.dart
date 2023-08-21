@@ -27,6 +27,8 @@ class GoldenTestScenario extends StatelessWidget {
     required this.name,
     required Widget child,
     this.constraints,
+    this.padding = const EdgeInsets.all(8),
+    this.shouldShowName = true,
   })  : builder = _build(child),
         super(key: key);
 
@@ -37,6 +39,8 @@ class GoldenTestScenario extends StatelessWidget {
     required this.name,
     required this.builder,
     this.constraints,
+    this.padding = const EdgeInsets.all(8),
+    this.shouldShowName = true,
   }) : super(key: key);
 
   /// Creates a [GoldenTestScenario] with a custom [textScaleFactor] that
@@ -47,6 +51,8 @@ class GoldenTestScenario extends StatelessWidget {
     required double textScaleFactor,
     required Widget child,
     this.constraints,
+    this.padding = const EdgeInsets.all(8),
+    this.shouldShowName = true,
   })  : builder = _build(
           _CustomTextScaleFactor(
             textScaleFactor: textScaleFactor,
@@ -70,22 +76,30 @@ class GoldenTestScenario extends StatelessWidget {
   /// Constraints to apply to the widget built by [builder]
   final BoxConstraints? constraints;
 
+  /// Padding to apply to the widget built by [builder]
+  final EdgeInsetsGeometry padding;
+
+  /// Whether or not to show the name of the scenario
+  final bool shouldShowName;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8),
+      padding: padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            name,
-            style: const TextStyle(fontSize: 18),
-            textHeightBehavior: const TextHeightBehavior(
-              applyHeightToFirstAscent: false,
+          if (shouldShowName) ...[
+            Text(
+              name,
+              style: const TextStyle(fontSize: 18),
+              textHeightBehavior: const TextHeightBehavior(
+                applyHeightToFirstAscent: false,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
+            const SizedBox(height: 8),
+          ],
           ConstrainedBox(
             constraints: constraints ??
                 GoldenTestScenarioConstraints.maybeOf(context) ??
