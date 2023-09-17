@@ -9,8 +9,6 @@ class MockCanvas extends Mock implements ui.Canvas {}
 
 class MockParagraph extends Mock implements ui.Paragraph {}
 
-class FakeVertices extends Fake implements ui.Vertices {}
-
 class FakeImage extends Fake implements ui.Image {}
 
 class FakePicture extends Fake implements ui.Picture {}
@@ -19,6 +17,10 @@ void main() {
   group('BlockedTextCanvasAdapter', () {
     late ui.Canvas parent;
     late BlockedTextCanvasAdapter subject;
+
+    setUpAll(() {
+      registerFallbackValue(ui.Paint());
+    });
 
     setUp(() {
       parent = MockCanvas();
@@ -33,7 +35,22 @@ void main() {
       subject.drawParagraph(paragraph, offset);
       verify(
         () => parent.drawRect(
-          offset & ui.Size(paragraph.width, paragraph.height),
+          offset & const ui.Size(200, 400),
+          any(that: isA<ui.Paint>()),
+        ),
+      ).called(1);
+    });
+
+    test('drawParagraph draws a rectangle for infinite width', () {
+      const offset = ui.Offset(20, 40);
+      final paragraph = MockParagraph();
+      when(() => paragraph.width).thenReturn(double.infinity);
+      when(() => paragraph.longestLine).thenReturn(400);
+      when(() => paragraph.height).thenReturn(400);
+      subject.drawParagraph(paragraph, offset);
+      verify(
+        () => parent.drawRect(
+          offset & const ui.Size(400, 400),
           any(that: isA<ui.Paint>()),
         ),
       ).called(1);
@@ -281,7 +298,7 @@ void main() {
     });
 
     test('drawVertices delegates to parent implementation', () {
-      final vertices = FakeVertices();
+      final vertices = ui.Vertices(ui.VertexMode.triangles, [Offset.zero]);
       const blendMode = ui.BlendMode.color;
       final paint = ui.Paint();
       subject.drawVertices(vertices, blendMode, paint);
